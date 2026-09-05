@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Eco Nodes — Smart Energy Management</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2e;--panel2:#10243b;--line:#203956;--text:#eef6ff;--muted:#91a7bd;--blue:#3b82f6;--orange:#f59e0b;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--white:#f8fafc}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Segoe UI,sans-serif;background:linear-gradient(135deg,#050b14,#0b1d32 55%,#102d4b);color:var(--text);min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.app{display:flex;min-height:100vh}.sidebar{width:245px;background:rgba(4,12,24,.92);border-right:1px solid var(--line);padding:22px 15px;position:fixed;height:100vh;z-index:10}
+.brand{font-size:22px;font-weight:800;margin:0 8px 25px}.brand span{color:var(--orange)}
+.nav button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--muted);padding:13px 14px;border-radius:10px;margin:4px 0}.nav button.active,.nav button:hover{background:#123052;color:white}.main{margin-left:245px;width:calc(100% - 245px);padding:25px;max-width:1700px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.title h1{margin:0;font-size:28px}.title p{margin:5px 0;color:var(--muted)}.user{display:flex;align-items:center;gap:10px}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#2563eb;font-weight:800}
+.btn{border:1px solid var(--line);background:#13283f;color:#fff;border-radius:9px;padding:10px 14px}.btn.primary{background:var(--blue);border-color:var(--blue)}.btn:hover{filter:brightness(1.12)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:15px}.card{background:linear-gradient(145deg,rgba(15,31,52,.97),rgba(9,23,39,.97));border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:0 12px 35px rgba(0,0,0,.18)}.stat small,.muted{color:var(--muted)}.stat .value{font-size:30px;font-weight:800;margin:8px 0}.orange{color:var(--orange)}.blue{color:#60a5fa}.green{color:#4ade80}.red{color:#f87171}.yellow{color:#facc15}.progress{height:8px;background:#1c3047;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);border-radius:99px}
+.section{margin-top:18px}.section h2{font-size:18px;margin:0 0 12px}.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:#09182a;color:#fff}.actions{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}.banner{margin-top:12px;padding:12px;border-radius:9px;background:rgba(34,197,94,.09);border:1px solid rgba(34,197,94,.25);color:#bbf7d0}
+.rec{font-size:25px;font-weight:800}.tag{display:inline-block;padding:4px 8px;border-radius:99px;font-size:11px;background:#19324d;color:#bcd4ed}.mini{font-size:12px;color:var(--muted);margin-top:5px}
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}.flowcard{text-align:center;padding:22px 12px;border:1px solid var(--line);border-radius:12px;background:#0b1a2c}.icon{font-size:28px}.arrow{font-size:24px;color:#5d7691}
+.loadrow,.hwrow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #18304a}.loadrow:last-child,.hwrow:last-child{border-bottom:0}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:8px}.switch{width:42px;height:23px;background:#263b52;border-radius:20px;border:0;padding:3px}.switch i{display:block;width:17px;height:17px;background:#94a3b8;border-radius:50%;transition:.2s}.switch.on{background:var(--green)}.switch.on i{transform:translateX(19px);background:white}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}.loginbox{width:min(470px,100%);padding:28px}.loginbox h1{font-size:34px}.choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.choice button{padding:20px;border:1px solid var(--line);background:#0d2036;color:white;border-radius:12px}.choice button:hover{border-color:#4d8ce8}
+.upload{border:2px dashed #315274;padding:35px;text-align:center;border-radius:12px;color:var(--muted);margin-top:10px}.upload.drag{border-color:var(--blue);background:#102a48}
+.toast{position:fixed;right:20px;bottom:20px;background:#122a44;border:1px solid var(--line);padding:13px 17px;border-radius:10px;z-index:50;box-shadow:0 10px 30px #0008}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+@media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.sidebar{width:210px}.main{margin-left:210px;width:calc(100% - 210px)}}
+@media(max-width:760px){.sidebar{position:fixed;left:-220px;width:220px;transition:.2s}.sidebar.open{left:0}.main{margin-left:0;width:100%;padding:16px}.mobilemenu{display:block!important}.grid4,.grid3,.formgrid{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}header{align-items:flex-start;gap:10px}.user span{display:none}.mobilemenu{display:block}.choice{grid-template-columns:1fr}}
+.mobilemenu{display:none}
+</style>
+</head>
+<body>
+<div id="loginView" class="login">
+  <div class="card loginbox">
+    <div class="brand">⚡ Eco<span>Nodes</span></div>
+    <h1>Welcome to the ECONODES website</h1>
+    <p class="muted">We hope you have a great experience.</p>
+    <div id="authArea">
+      <div class="field"><label>User ID</label><input id="loginId" placeholder="demo"></div>
+      <div class="field" style="margin-top:10px"><label>Password</label><input id="loginPass" type="password" placeholder="demo123"></div>
+      <div class="actions"><button class="btn primary" onclick="login()">Login</button><button class="btn" onclick="showRegister()">Create account</button></div>
+      <button class="btn" style="margin-top:10px;width:100%" onclick="demoLogin()">Use Demo Account</button>
+    </div>
+  </div>
+</div>
+
+<div id="appView" class="app hidden">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">⚡ Eco<span>Nodes</span></div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard">⌂ Dashboard</button>
+    <button data-page="about">ⓘ About</button>
+    <button data-page="input">⇩ Data Input</button>
+    <button id="adminNav" data-page="admin" class="hidden">⚙ Admin Panel</button>
+    <button onclick="logout()">↪ Logout</button>
+  </nav>
+</aside>
+<main class="main">
+<header><button class="btn mobilemenu" onclick="sidebar.classList.toggle('open')">☰</button><div class="title"><h1>⚡ Eco Nodes</h1><p>Smart Energy Management System • ESP32 + AI Energy Manager</p></div><div class="user"><div class="avatar" id="avatar">U</div><button class="btn" onclick="logout()">Logout</button></div></header>
+
+<section id="dashboard" class="page">
+<div class="grid4">
+<div class="card stat"><small>Solar Generation</small><div class="value orange" id="solar">-- kW</div><small>Real-time sensor input</small></div>
+<div class="card stat"><small>Current Load</small><div class="value blue" id="load">-- kW</div><small>Campus / local loads</small></div>
+<div class="card stat"><small>Battery SOC</small><div class="value green" id="soc">--%</div><div class="progress"><i id="socbar"></i></div><small>BMS monitored</small></div>
+<div class="card stat"><small>Grid Exchange</small><div class="value" id="grid">-- kW</div><small id="gridstate">Calculating…</small></div>
+</div>
+
+<div class="section card"><h2>User Inputs — Energy Configuration</h2>
+<div class="formgrid">
+<div class="field"><label>Solar Generation (kW)</label><input id="inSolar" type="number" step=".1" value="48"></div>
+<div class="field"><label>Load Demand (kW)</label><input id="inLoad" type="number" step=".1" value="35"></div>
+<div class="field"><label>Battery SOC (%)</label><input id="inSoc" type="number" min="0" max="100" value="68"></div>
+<div class="field"><label>Battery Capacity (kWh)</label><input id="inCap" type="number" value="120"></div>
+<div class="field"><label>Electricity Tariff (₹/kWh)</label><input id="inTariff" type="number" step=".1" value="8"></div>
+<div class="field"><label>Forecast Horizon</label><select id="inHorizon"><option>1 hour</option><option selected>6 hours</option><option>12 hours</option><option>24 hours</option></select></div>
+</div>
+<div class="actions"><button class="btn primary" onclick="applyInputs()">Apply Inputs & Run Energy Analysis</button><button class="btn" onclick="resume()">▶ Resume Simulation</button></div>
+<div class="banner" id="analysis">Current analysis: waiting for inputs.</div></div>
+
+<div class="section"><h2>User Outputs — Energy Recommendation</h2><div class="grid3">
+<div class="card"><small>Recommended Action</small><div class="rec green" id="action">STORE SURPLUS</div><div class="mini">Primary controller decision</div></div>
+<div class="card"><small>Available Surplus</small><div class="value" id="surplus">-- kW</div><div class="mini">Energy available after loads</div></div>
+<div class="card"><small>Grid Import Cost</small><div class="value" id="cost">₹--/hour</div><div class="mini">After battery support</div></div>
+<div class="card"><small>Battery Action</small><div class="value green" id="batteryAction">CHARGE</div><div class="mini">BMS-aware recommendation</div></div>
+<div class="card"><small>Load Management</small><div class="value" id="lm">NORMAL</div><div class="mini">Priority-based load status</div></div>
+<div class="card"><small>Forecast Window</small><div class="value" id="forecastWindow">6 hours</div><div class="mini">AI prediction horizon</div></div>
+</div></div>
+
+<div class="section card"><h2>📍 Data-Driven Renewable Forecast — Demo Region</h2><p class="muted">Forecast derived from simulated historical generation data and time-of-day patterns.</p>
+<div class="grid3"><div><small>Next-Day Solar Forecast</small><div class="value orange" id="nextForecast">-- kWh</div><span class="tag">High confidence</span></div><div><small>Solar Forecast</small><div class="value" id="solarForecast">-- kWh</div><div class="mini">Historical-data ensemble</div></div><div><small>Forecast Range</small><div class="value" id="range">--–-- kWh</div><div class="mini">Uncertainty band</div></div></div>
+<p class="mini">How improved prediction works: 1) recent-day trend → 2) month average → 3) time-of-day pattern → 4) blended forecast with uncertainty.</p></div>
+
+<div class="section"><h2>Historical Data Used</h2><div class="grid4">
+<div class="card"><small>Installed Capacity</small><div class="value">100 kW</div><div class="mini">Simulated plant capacity</div></div>
+<div class="card"><small>Latest-Day Generation</small><div class="value" id="histDay">-- kWh</div><div class="mini">Historical dataset</div></div>
+<div class="card"><small>Month-to-Date Solar</small><div class="value" id="histMonth">-- kWh</div><div class="mini">Cumulative</div></div>
+<div class="card"><small>Month Daily Average</small><div class="value" id="histAvg">-- kWh</div><div class="mini">Historical dataset</div></div>
+</div></div>
+
+<div class="section card"><h2>Live Energy Architecture</h2><div class="flow">
+<div class="flowcard"><div class="icon">☀️</div><b>Solar PV</b><div class="mini">DC generation</div></div><div class="arrow">→</div>
+<div class="flowcard"><div class="icon">📡</div><b>ESP32 Gateway</b><div class="mini">Voltage • Current • BMS • Loads</div></div><div class="arrow">→</div>
+<div class="flowcard"><div class="icon">🧠</div><b>AI Energy Manager</b><div class="mini">Raspberry Pi • Forecast + optimization</div></div>
+</div></div>
+
+<div class="section grid2"><div class="card"><h2>Generation vs Demand</h2><canvas id="energyChart" height="115"></canvas></div>
+<div class="card"><h2>AI Decision Engine</h2><div class="rec green" id="decision">STORE SURPLUS</div><p class="muted" id="reason">Solar generation currently exceeds demand.</p>
+<div class="formgrid" style="grid-template-columns:1fr 1fr"><div class="field"><label>Forecast Horizon</label><select id="decisionHorizon"><option>1 hour</option><option selected>6 hours</option><option>12 hours</option><option>24 hours</option></select></div><div class="field"><label>Operating Mode</label><select id="mode"><option>Adaptive</option><option>Manual</option><option>Eco</option></select></div></div>
+<button class="btn primary" style="margin-top:12px" onclick="applyInputs()">Recalculate decision</button></div></div>
+
+<div class="section grid2"><div class="card"><h2>Smart Load Management</h2><div id="loads"></div></div><div class="card"><h2>Hardware Status</h2><div id="hardware"></div></div></div>
+
+<div class="section card"><h2>Energy Flow</h2><div class="grid4">
+<div><small>Solar → Loads</small><div class="value orange" id="flow1">-- kW</div></div><div><small>Solar → Battery</small><div class="value green" id="flow2">-- kW</div></div><div><small>Battery → Loads</small><div class="value blue" id="flow3">-- kW</div></div><div><small>Grid → System</small><div class="value" id="flow4">-- kW</div></div>
+</div></div>
+<div class="section card muted">Prototype status: sensor, BMS, ESP32, and AI values are simulated/manual until a real hardware API or MQTT connection is added.</div>
+</section>
+
+<section id="input" class="page hidden">
+<div class="card"><h2>How will you input the data?</h2><div class="choice"><button onclick="showManual()">📄 Manually<br><span class="mini">Upload CSV historical data</span></button><button onclick="connectESP()">📡 Through ESP32<br><span class="mini">Simulated device connection</span></button></div></div>
+<div id="manualBox" class="card section hidden"><h2>Manual Data Input</h2><p class="muted">Expected CSV columns: <b>timestamp, production_kWh, usage_kWh, battery_pct</b></p>
+<div class="upload" id="drop">Drag & drop CSV here or <label style="color:#60a5fa;text-decoration:underline;cursor:pointer">browse<input id="csv" type="file" accept=".csv" hidden></label></div>
+<p id="csvStatus" class="mini"></p></div>
+</section>
+
+<section id="about" class="page hidden"><div class="card"><h2>About Eco Nodes</h2><p>This website is made for managing the energy produced using natural resources.</p><p class="muted">Eco Nodes demonstrates an adaptive energy-management architecture using simulated ESP32 sensor data, battery status, load switching and trend-based forecasting.</p></div></section>
+
+<section id="admin" class="page hidden"><div class="grid3"><div class="card"><h2>User Management</h2><p class="muted">View, edit or deactivate simulated users.</p><div id="users"></div></div><div class="card"><h2>Data Management</h2><button class="btn" onclick="clearData()">Clear simulated datasets</button><button class="btn" style="margin-left:6px" onclick="showManual()">Re-import CSV</button></div><div class="card"><h2>System Controls</h2><button class="btn" onclick="faultDemo()">Inject demo warning</button><p class="mini">Analytics and settings are simulated locally.</p></div></div></section>
+</main></div>
+<div id="toast" class="toast hidden"></div>
+<script>
+const $=id=>document.getElementById(id);
+let state={solar:48,load:35,soc:68,sim:true};
+const loadsData=[['Critical Loads','Essential equipment','HIGH','red',true],['Important Loads','Labs / classrooms','MEDIUM','yellow',true],['Non-Critical Loads','Lighting / comfort loads','LOW','green',true],['EV Charging','Flexible load','FLEXIBLE','blue',false]];
+function toast(t){$('toast').textContent=t;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),2500)}
+function demoLogin(){localStorage.setItem('ecoSession',JSON.stringify({name:'Demo User',id:'demo',role:'Admin'}));startApp()}
+function login(){let id=$('loginId').value,p=$('loginPass').value;if((id==='demo'&&p==='demo123')||localStorage.getItem('ecoUser')){localStorage.setItem('ecoSession',JSON.stringify({name:id,id,role:id==='admin'?'Admin':'User'}));startApp()}else toast('Invalid login. Try the Demo Account.')}
+function showRegister(){ $('authArea').innerHTML=`<div class="field"><label>Name</label><input id="rName"></div><div class="field" style="margin-top:8px"><label>User ID</label><input id="rId"></div><div class="field" style="margin-top:8px"><label>Email</label><input id="rEmail" type="email"></div><div class="field" style="margin-top:8px"><label>Contact</label><input id="rContact"></div><div class="field" style="margin-top:8px"><label>Password</label><input id="rPass" type="password"></div><div class="field" style="margin-top:8px"><label>Address</label><input id="rAddress"></div><div class="field" style="margin-top:8px"><label>User Type</label><select id="rType"><option>Home usage</option><option>Solar-Wind plant owner</option></select></div><div class="actions"><button class="btn primary" onclick="register()">Register</button><button class="btn" onclick="location.reload()">Back</button></div>`}
+function register(){let n=$('rName').value,id=$('rId').value,p=$('rPass').value;if(!n||!id||p.length<6)return toast('Complete fields; password must be 6+ characters.');localStorage.setItem('ecoUser',JSON.stringify({name:n,id,password:p,role:'User',email:$('rEmail').value,type:$('rType').value}));toast('Registration successful. You can now log in.');setTimeout(()=>location.reload(),900)}
+function startApp(){let s=JSON.parse(localStorage.getItem('ecoSession')||'{}');$('loginView').classList.add('hidden');$('appView').classList.remove('hidden');$('avatar').textContent=(s.name||'U')[0].toUpperCase();if(s.role==='Admin')$('adminNav').classList.remove('hidden');renderLoads();renderHardware();initChart();applyInputs();loadUsers()}
+function logout(){localStorage.removeItem('ecoSession');location.reload()}
+document.querySelectorAll('.nav button[data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+function showPage(id){document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));sidebar.classList.remove('open')}
+function showManual(){showPage('input');$('manualBox').classList.remove('hidden')}
+function connectESP(){toast('ESP32 simulation connected — dashboard is now receiving demo data.');state.sim=true;showPage('dashboard')}
+function applyInputs(){state.solar=+$('inSolar').value;state.load=+$('inLoad').value;state.soc=Math.max(0,Math.min(100,+$('inSoc').value));let cap=+$('inCap').value,tar=+$('inTariff').value,h=$('inHorizon').value;updateUI(tar,h,cap)}
+function resume(){state.sim=true;toast('Simulation resumed. Values will update automatically.')}
+function updateUI(tar=8,h='6 hours',cap=120){let s=state.solar,l=state.load,soc=state.soc,sur=s-l;let grid=Math.max(0,-sur),cost=grid*tar;let action=sur>2?'STORE SURPLUS':sur<-3?'SUPPORT LOAD':'BALANCE';$('solar').textContent=s.toFixed(1)+' kW';$('load').textContent=l.toFixed(1)+' kW';$('soc').textContent=soc.toFixed(0)+'%';$('socbar').style.width=soc+'%';$('grid').textContent=(sur>=0?sur:Math.abs(sur)).toFixed(1)+' kW';$('gridstate').textContent=sur>=0?'Grid export potential':'Grid import';$('action').textContent=action;$('decision').textContent=action;$('batteryAction').textContent=sur>1?'CHARGE':sur<-1?'DISCHARGE':'HOLD';$('surplus').textContent=sur.toFixed(1)+' kW';$('cost').textContent='₹'+cost.toFixed(2)+'/hour';$('lm').textContent=l>60?'PRIORITIZE':'NORMAL';$('forecastWindow').textContent=h;$('analysis').textContent=`Current analysis: ${s.toFixed(1)} kW solar, ${l.toFixed(1)} kW active load, ${grid.toFixed(1)} kW grid import, ${Math.max(0,sur).toFixed(1)} kW grid export, battery SOC ${soc.toFixed(0)}%.`;$('reason').textContent=sur>2?'Solar generation currently exceeds demand. Store surplus in the battery.':sur<0?'Demand exceeds solar generation. Use battery support and prioritize critical loads.':'Generation and demand are approximately balanced.';$('flow1').textContent=Math.min(s,l).toFixed(1)+' kW';$('flow2').textContent=Math.max(0,sur).toFixed(1)+' kW';$('flow3').textContent=Math.max(0,l-s).toFixed(1)+' kW';$('flow4').textContent=grid.toFixed(1)+' kW';$('nextForecast').textContent=(s*5.8).toFixed(0)+' kWh';$('solarForecast').textContent=(s*5.8).toFixed(0)+' kWh';$('range').textContent=(s*5.0).toFixed(0)+'–'+(s*6.5).toFixed(0)+' kWh';$('histDay').textContent=(s*5.7).toFixed(0)+' kWh';$('histMonth').textContent=(s*5.7*new Date().getDate()).toFixed(0)+' kWh';$('histAvg').textContent=(s*5.7).toFixed(0)+' kWh';updateChart(s,l,soc)}
+function tick(){if(!state.sim||$('dashboard').classList.contains('hidden'))return;state.solar=Math.max(5,state.solar+(Math.random()-.5)*4);state.load=Math.max(8,state.load+(Math.random()-.5)*3);state.soc=Math.max(20,Math.min(95,state.soc+(state.solar>state.load?.2:-.15)));$('inSolar').value=state.solar.toFixed(1);$('inLoad').value=state.load.toFixed(1);$('inSoc').value=state.soc.toFixed(0);updateUI(+$('inTariff').value,$('inHorizon').value,+$('inCap').value)}
+setInterval(tick,3000)
+let chart,chartData={labels:[],solar:[],load:[],soc:[]};
+function initChart(){let c=$('energyChart').getContext('2d');chart=new Chart(c,{type:'line',data:{labels:chartData.labels,datasets:[{label:'Solar',data:chartData.solar,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.12)',fill:true},{label:'Demand',data:chartData.load,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.08)',fill:true},{label:'Battery trend',data:chartData.soc,borderColor:'#4ade80',borderDash:[6,5],fill:false}]},options:{responsive:true,plugins:{legend:{labels:{color:'#b8c9da'}}},scales:{x:{ticks:{color:'#8298ae'},grid:{color:'#1a3048'}},y:{ticks:{color:'#8298ae'},grid:{color:'#1a3048'}}}}})}
+function updateChart(s,l,soc){if(!chart)return;let t=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});chartData.labels.push(t);chartData.solar.push(+s.toFixed(1));chartData.load.push(+l.toFixed(1));chartData.soc.push(+soc.toFixed(1));if(chartData.labels.length>14){chartData.labels.shift();chartData.solar.shift();chartData.load.shift();chartData.soc.shift()}chart.update()}
+function renderLoads(){let el=$('loads');el.innerHTML='';loadsData.forEach((x,i)=>{let row=document.createElement('div');row.className='loadrow';row.innerHTML=`<div><span class="dot" style="background:var(--${x[3]==='blue'?'blue':x[3]})"></span><b>${x[0]}</b><div class="mini">${x[1]} • ${x[2]}</div></div><button class="switch ${x[4]?'on':''}" onclick="this.classList.toggle('on')"><i></i></button>`;el.appendChild(row)})}
+function renderHardware(){let items=[['ESP32 Gateway','Online','green'],['Voltage Sensor','OK','green'],['Current Sensor','OK','green'],['Battery BMS','OK','green'],['Raspberry Pi AI','Running','green'],['Power Controller','Ready','green']];$('hardware').innerHTML=items.map(x=>`<div class="hwrow"><span><span class="dot" style="background:var(--${x[2]})"></span>${x[0]}</span><span class="tag">${x[1]}</span></div>`).join('')}
+function faultDemo(){$('hardware').children[1].querySelector('.tag').textContent='Warning';toast('Demo warning injected into Voltage Sensor.')}
+function loadUsers(){let u=JSON.parse(localStorage.getItem('ecoUser')||'null');$('users').innerHTML=u?`<p><b>${u.name}</b><br><span class="mini">${u.id} • ${u.type||'User'}</span></p>`:'<p class="muted">No registered users.</p>'}
+function clearData(){localStorage.removeItem('ecoData');toast('Simulated dataset cleared.')}
+const drop=$('drop');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag')});drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag');handleCSV(e.dataTransfer.files[0])});$('csv').addEventListener('change',e=>handleCSV(e.target.files[0]));
+function handleCSV(file){if(!file||!file.name.toLowerCase().endsWith('.csv'))return toast('Please select a CSV file.');let r=new FileReader();r.onload=()=>{let lines=r.result.trim().split(/\r?\n/);let headers=lines[0].split(',').map(x=>x.trim());let required=['timestamp','production_kWh','usage_kWh','battery_pct'];let ok=required.every(x=>headers.includes(x));$('csvStatus').textContent=ok?`✓ Imported ${Math.max(0,lines.length-1)} data rows successfully. Dashboard will use this dataset for the demo.`:`CSV loaded, but expected columns are: ${required.join(', ')}`;if(ok)toast('CSV imported successfully.');};r.readAsText(file)}
+if(localStorage.getItem('ecoSession'))startApp();
+</script>
+</body></html>
